@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type="text"] {
+  @apply placeholder:text-slate-300 focus:ring-slate-400
+}
