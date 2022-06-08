@@ -4,10 +4,13 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "strict": true,
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite/client"],
+    "types": [
+      "vite/client"
+    ],
     "noEmit": true,
     "isolatedModules": true
   }

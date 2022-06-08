@@ -18,9 +18,14 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.2",
+    "@types/lodash": "^4.14.182",
     "chart.js": "^3.8.0",
     "chartjs-adapter-date-fns": "^2.0.0",
     "date-fns": "^2.28.0",
-    "solid-js": "^1.4.3"
+    "isomorphic-fetch": "^3.0.0",
+    "lodash": "^4.17.21",
+    "octokit": "^1.7.2",
+    "solid-js": "^1.4.3",
+    "zod": "^3.17.3"
   }
 }

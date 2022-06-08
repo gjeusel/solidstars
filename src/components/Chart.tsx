@@ -2,6 +2,7 @@ import { Component, createEffect } from "solid-js";
 import { createResource, Suspense, createMemo } from "solid-js";
 
 import * as dt from "date-fns";
+import * as client from "../client";
 
 import {
   Chart,
@@ -34,64 +35,48 @@ Chart.register(
   LineElement
 );
 
-const toApiUrl = (repo: string, per_page?: number, page?: number) => {
-  const url = new URL(`https://api.github.com/repos/${repo}/stargazers`);
-  url.searchParams.set("per_page", String(per_page || 100));
-  url.searchParams.set("page", String(page || 1));
-  return url;
-};
-
-interface GHStargazer {
-  starred_at: string;
-  user: any;
+interface TimePoint {
+  x: Date;
+  y: number;
 }
-
-const fetchData = async (source: string[]): Promise<GHStargazer[][]> => {
-  // https://docs.github.com/en/rest/activity/starring#about-the-starring-api
-  const urls = source.map((repo) => toApiUrl(repo));
-
-  const opts = {
-    headers: { Accept: "application/vnd.github.v3.star+json" },
-    method: "GET",
-  };
-  const promises = urls.map((url) => fetch(url, opts));
-
-  const responses = await Promise.all(promises);
-  const series = await Promise.all(responses.map((r) => r.json()));
-  return series as GHStargazer[][];
-};
 
 const ChartComponent: Component<{
   repos: () => string[];
 }> = (props) => {
-  const [series] = createResource(props.repos, fetchData);
+  const [series] = createResource(
+    props.repos,
+    async () => {
+      const promises = props.repos().map((repo) => client.fetchStars(repo));
+      return await Promise.all(promises);
+    },
+    { initialValue: [] }
+  );
 
   const starsChartId = "starsChart";
 
   const starsChartCfg = createMemo(() => {
-    if (series() === undefined) return;
+    if (!series().length) return;
+
     const optsDataset: Partial<LineOptions> = {
       fill: true,
       tension: 0.1,
     };
-    const datasets: ChartDatasetProperties<"line", any>[] = series().map(
-      (serie, i) => {
+
+    const datasets: ChartDatasetProperties<"line", TimePoint[]>[] =
+      series().map((serie, i) => {
         const label = props.repos()[i];
-        const data = serie.map((point, i) => ({
-          x: point.starred_at,
+        const data = serie.stars.map((point, i) => ({
+          x: point.starredAt,
           y: i + 1,
         }));
         return { data, label, ...optsDataset };
-      }
-    );
+      });
 
-    const minDt = dt.min(datasets.map((e) => dt.parseISO(e.data[0].x)));
-    const maxDt = dt.max(
-      datasets.map((e) => dt.parseISO(e.data[e.data.length - 1].x))
-    );
+    const minDt = dt.min(datasets.map((e) => e.data[0].x));
+    const maxDt = dt.max(datasets.map((e) => e.data[e.data.length - 1].x));
     const labels = dt.eachDayOfInterval({ start: minDt, end: maxDt });
 
-    const cfg: ChartConfiguration = {
+    const cfg: ChartConfiguration<"line", TimePoint[], Date> = {
       type: "line",
       data: { labels, datasets },
       options: {
@@ -109,9 +94,10 @@ const ChartComponent: Component<{
   });
 
   createEffect(() => {
-    if (starsChartCfg() === undefined) return undefined;
+    const cfg = starsChartCfg();
+    if (cfg === undefined) return;
     const ctx = document.getElementById(starsChartId) as HTMLCanvasElement;
-    return new Chart(ctx, starsChartCfg());
+    return new Chart(ctx, cfg);
   });
 
   return (
