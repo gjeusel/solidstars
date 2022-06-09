@@ -72,9 +72,11 @@ const ChartComponent: Component<{
         return { data, label, ...optsDataset };
       });
 
-    const minDt = dt.min(datasets.map((e) => e.data[0].x));
-    const maxDt = dt.max(datasets.map((e) => e.data[e.data.length - 1].x));
-    const labels = dt.eachDayOfInterval({ start: minDt, end: maxDt });
+    const minDt = dt.startOfMonth(dt.min(datasets.map((e) => e.data[0].x)));
+    const maxDt = dt.startOfMonth(
+      dt.addMonths(dt.max(datasets.map((e) => e.data[e.data.length - 1].x)), 1)
+    );
+    const labels = dt.eachMonthOfInterval({ start: minDt, end: maxDt });
 
     const cfg: ChartConfiguration<"line", TimePoint[], Date> = {
       type: "line",
@@ -82,10 +84,10 @@ const ChartComponent: Component<{
       options: {
         scales: {
           x: {
-            type: "timeseries",
+            type: "time",
             grid: { drawOnChartArea: false },
             ticks: { source: "labels" },
-            time: { unit: "day", displayFormats: { day: "yyyy-MM-dd" } },
+            time: { unit: "month" },
           },
         },
       },
