@@ -8,6 +8,8 @@ import Chart from "./components/Chart";
 const baseUrl = "https://github.com/";
 
 const [search, setSearch] = createSignal("");
+const [searchError, setSearchError] = createSignal(false);
+
 const [repos, setRepos] = createSignal(["solidjs/solid"]);
 
 const onSubmit = () => {
