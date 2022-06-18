@@ -1,4 +1,4 @@
-import { Component, createEffect } from "solid-js";
+import { Component, createEffect, Show, For } from "solid-js";
 import { createResource, Suspense, createMemo } from "solid-js";
 
 import * as dt from "date-fns";
@@ -95,23 +95,38 @@ const ChartComponent: Component<{
     return cfg;
   });
 
+  let chart: Chart<any, any, any> | undefined = undefined;
+
   createEffect(() => {
     const cfg = starsChartCfg();
-    if (cfg === undefined) return;
-    const ctx = document.getElementById(starsChartId) as HTMLCanvasElement;
-    return new Chart(ctx, cfg);
+    if (!cfg) return;
+
+    const ctx = document.getElementById(
+      starsChartId
+    ) as HTMLCanvasElement | null;
+    if (!ctx) return;
+
+    if (chart !== undefined) chart.destroy();
+    chart = new Chart(ctx, cfg);
+    return chart;
   });
 
   return (
     <div>
-      {/* <div> */}
-      {/*   <For each={props.repos()}>{(item) => <span>{item}</span>}</For> */}
-      {/* </div> */}
-      <Suspense fallback={<p>Loading...</p>}>
+      <ul class="list-none space-y-4">
+        <For each={props.repos()}>{(item) => <li>{item}</li>}</For>
+      </ul>
+      <Show when={series.loading}>
+        <div class="h-96 flex">
+          <IconUiwLoading class="mx-auto self-center animate-spin-slow duration-75 text-slate-400 h-10 w-10" />
+        </div>
+      </Show>
+
+      <Show when={!series.loading}>
         <div class="w-[60rem] mx-auto">
           <canvas id={starsChartId} />
         </div>
-      </Suspense>
+      </Show>
     </div>
   );
 };

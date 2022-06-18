@@ -26,6 +26,8 @@ export type StarsInfo = z.infer<typeof StarsInfo>;
 export async function fetchStars(repo: string) {
   const [owner, name] = repo.split("/");
 
+  console.log(`Fetching stars for '${repo}' ...`);
+
   // https://docs.github.com/en/graphql/reference/objects#stargazerconnection
   const response = await octokit.graphql<any>(
     `
