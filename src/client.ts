@@ -7,6 +7,28 @@ const octokit = new Octokit({
   auth: import.meta.env.VITE_ACCESS_TOKEN,
 });
 
+octokit.hook.wrap("request", async (request, options) => {
+  const start = Date.now();
+  try {
+    const response = await request(options);
+
+    const timedelta = Date.now() - start;
+
+    const label = "[Oktokit] " + options.method + " " + options.url;
+    if (options.url === "/graphql") {
+      const vars = options.variables as any;
+      const repo = `${vars.owner}/${vars.name}`;
+      const td_seconds = (timedelta / 1000).toFixed(2);
+      const msg = `${label} - stars for '${repo}' took ${td_seconds} s`;
+      console.info(msg);
+    }
+    return response;
+  } catch (error: any) {
+    console.error(error);
+    throw error;
+  }
+});
+
 const dateSchema = z.preprocess((arg: unknown) => {
   if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
 }, z.date());
@@ -25,8 +47,6 @@ export type StarsInfo = z.infer<typeof StarsInfo>;
 
 export async function fetchStars(repo: string) {
   const [owner, name] = repo.split("/");
-
-  console.log(`Fetching stars for '${repo}' ...`);
 
   // https://docs.github.com/en/graphql/reference/objects#stargazerconnection
   const response = await octokit.graphql<any>(
