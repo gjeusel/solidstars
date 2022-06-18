@@ -19,6 +19,8 @@ const onSubmit = () => {
   if (repos().includes(newValue))
     setRepos(repos().filter((e) => e != newValue));
   else setRepos([...repos(), newValue]);
+
+  setSearch("")
 };
 
 const App: Component = () => {
