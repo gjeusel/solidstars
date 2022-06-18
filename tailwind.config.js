@@ -5,9 +5,11 @@ module.exports = {
   ],
   darkMode: "class",
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        "spin-slow": "spin 2s linear infinite",
+      },
+    },
   },
-  plugins: [
-    require("@tailwindcss/forms"),
-  ],
+  plugins: [require("@tailwindcss/forms")],
 };

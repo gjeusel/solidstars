@@ -8,12 +8,19 @@ import Chart from "./components/Chart";
 const baseUrl = "https://github.com/";
 
 const [search, setSearch] = createSignal("");
-const [repos, setRepos] = createSignal(["solidjs/solid"]);
+const [searchError, setSearchError] = createSignal(false);
+
+const [repos, setRepos] = createSignal(["solidjs/solid", "vuejs/vue"]);
 
 const onSubmit = () => {
   let newValue = search();
   if (!search().startsWith(baseUrl)) newValue = search().replace(baseUrl, "");
-  setRepos([newValue, search()]);
+
+  if (repos().includes(newValue))
+    setRepos(repos().filter((e) => e != newValue));
+  else setRepos([...repos(), newValue]);
+
+  setSearch("")
 };
 
 const App: Component = () => {

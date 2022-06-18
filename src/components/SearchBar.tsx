@@ -11,9 +11,12 @@ const SearchBar: Component<{
         <input
           type="text"
           class="border-0 rounded-full w-[40rem] rounded-r-none ring-"
-          placeholder="solid/solidjs or https://github.com/solid/solid-js"
+          placeholder="solidjs/solid or https://github.com/solidjs/solid"
           value={props.search()}
           onKeyUp={(evt) => props.onSetSearch(evt.currentTarget.value)}
+          onKeyPress={(evt) =>
+            evt.key === "Enter" ? props.onSubmit() : undefined
+          }
         />
         <button
           type="submit"
