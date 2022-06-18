@@ -17,3 +17,16 @@ Waiting for [Github Graphql pagination with offset](https://github.community/t/g
   src="https://user-images.githubusercontent.com/16243660/174448812-2de12df4-5b2c-4176-9b60-800a7f7eb25d.png"
   style="float: center;"
 />
+
+
+## Ideas
+
+- Metrics
+  - [ ] mean time to issue closure
+  - [ ] number of active contributors
+
+- License
+
+- User
+  - [ ] when you starred it (vertical line on the chart)
+  - [ ] when the people you follow starred it (e.g. antfu)
