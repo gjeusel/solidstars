@@ -33,44 +33,47 @@ const dateSchema = z.preprocess((arg: unknown) => {
   if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
 }, z.date());
 
+// __________ Stargazers __________
+//
+// https://docs.github.com/en/graphql/reference/objects#stargazerconnection
+//
+const stargazersQry = `
+  query stars($owner: String!, $name: String!, $num: Int = 100, $cursor: String = null) {
+    repository(owner: $owner, name: $name) {
+      stargazers(first: $num, after: $cursor) {
+        totalCount
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+        nodes {
+          name
+        }
+        edges {
+          starredAt
+        }
+      }
+    }
+  }
+`;
+
+const StarsSeries = z.array(
+  z.object({
+    starredAt: dateSchema,
+    name: z.string().nullable(), // Can be null, maybe some users concerned with privacy ?
+  })
+);
 export const StarsInfo = z.object({
   repo: z.string(),
   total: z.number(),
-  stars: z.array(
-    z.object({
-      starredAt: dateSchema,
-      name: z.string().nullable(), // Can be null, maybe some users concerned with privacy ?
-    })
-  ),
+  stars: StarsSeries,
 });
 export type StarsInfo = z.infer<typeof StarsInfo>;
 
 export async function fetchStars(repo: string) {
   const [owner, name] = repo.split("/");
 
-  // https://docs.github.com/en/graphql/reference/objects#stargazerconnection
-  const response = await octokit.graphql<any>(
-    `
-    query stars($owner: String!, $name: String!, $num: Int = 100) {
-      repository(owner: $owner, name: $name) {
-        stargazers(first: $num) {
-          totalCount
-          pageInfo {
-            endCursor
-            hasNextPage
-          }
-          nodes {
-            name
-          }
-          edges {
-            starredAt
-          }
-        }
-      }
-    }
-    `,
-    { owner, name }
-  );
+  const response = await octokit.graphql<any>(stargazersQry, { owner, name });
 
   const data = response.repository.stargazers;
 

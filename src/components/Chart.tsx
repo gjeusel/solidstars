@@ -1,5 +1,11 @@
-import { Component, createEffect, Show, For } from "solid-js";
-import { createResource, createMemo } from "solid-js";
+import {
+  Component,
+  createEffect,
+  Show,
+  For,
+  createResource,
+  createMemo,
+} from "solid-js";
 
 import * as dt from "date-fns";
 import ld from "lodash";
@@ -148,9 +154,6 @@ const ChartComponent: Component<{
 
   return (
     <div>
-      <ul class="list-none space-y-4">
-        <For each={props.repos()}>{(item) => <li>{item}</li>}</For>
-      </ul>
       <Show when={series.loading}>
         <div class="h-96 flex">
           <IconUiwLoading class="mx-auto self-center animate-spin-slow duration-75 text-slate-400 h-10 w-10" />
@@ -158,6 +161,16 @@ const ChartComponent: Component<{
       </Show>
 
       <Show when={!series.loading}>
+        <ul class="grid grid-cols-2 w-44 mx-auto py-8">
+          <For each={ld.sortBy(series(), (s) => -s.total)}>
+            {(item) => (
+              <div class="contents">
+                <span class="font-medium">{item.repo}</span>
+                <span class="text-right">{item.total}</span>
+              </div>
+            )}
+          </For>
+        </ul>
         <div class="w-[60rem] mx-auto">
           <canvas id={starsChartId} />
         </div>
