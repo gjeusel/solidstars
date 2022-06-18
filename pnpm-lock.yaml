@@ -5,6 +5,7 @@ specifiers:
   '@iconify-json/uiw': ^1.1.1
   '@tailwindcss/forms': ^0.5.2
   '@types/lodash': ^4.14.182
+  '@types/tailwindcss': ^3.0.10
   autoprefixer: ^10.4.7
   chart.js: ^3.8.0
   chartjs-adapter-date-fns: ^2.0.0
@@ -37,6 +38,7 @@ dependencies:
 devDependencies:
   '@iconify-json/carbon': 1.1.3
   '@iconify-json/uiw': 1.1.1
+  '@types/tailwindcss': 3.0.10
   autoprefixer: 10.4.7_postcss@8.4.14
   postcss: 8.4.14
   tailwindcss: 3.0.24
@@ -725,6 +727,10 @@ packages:
   /@types/node/17.0.41:
     resolution: {integrity: sha512-xA6drNNeqb5YyV5fO3OAEsnXLfO7uF0whiOfPTz5AeDo8KeZFmODKnvwPymMNO8qE/an8pVY/O50tig2SQCrGw==}
     dev: false
+
+  /@types/tailwindcss/3.0.10:
+    resolution: {integrity: sha512-1UnZIHO0NOPyPlPFV0HuMjki2SHkvG9uBA1ZehWj/OQMSROk503nuNyyfmJSIT289yewxTbKoPG+KLxYRvfIIg==}
+    dev: true
 
   /acorn-node/1.8.2:
     resolution: {integrity: sha512-8mt+fslDufLYntIoPAaIMUe/lrbrehIiwmR3t2k9LljIzoigEPF27eLk2hy8zSGzmR/ogr7zbRKINMo1u0yh5A==}
