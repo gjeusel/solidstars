@@ -1,3 +1,5 @@
+>This project was created using [Create JD App](https://github.com/OrJDev/create-jd-app).
+
 ## SolidStars - Playing with solidjs
 
 - [Github REST API Doc](https://docs.github.com/en/rest/activity/starring#about-the-starring-api)
