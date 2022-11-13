@@ -3,12 +3,33 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "extends": [
+    "@antfu",
     "plugin:solid/typescript",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:tailwindcss/recommended"
   ],
   "rules": {
+    "tailwindcss/no-custom-classname": [
+      "warn",
+      {
+        "whitelist": [
+          "animate-spin-slow"
+        ]
+      }
+    ],
+    "max-len": [
+      "error",
+      {
+        "code": 120,
+        "ignoreTrailingComments": true,
+        "ignoreComments": true,
+        "ignoreUrls": true
+      }
+    ],
     "@typescript-eslint/consistent-type-imports": "warn"
   }
 }
