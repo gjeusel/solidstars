@@ -1,38 +1,37 @@
+import type { Component } from 'solid-js'
 import {
-  Component,
-  createEffect,
-  Show,
   For,
-  createResource,
+  Show,
+  createEffect,
   createMemo,
-} from "solid-js";
+  createResource,
+} from 'solid-js'
 
-import * as dt from "date-fns";
-import ld from "lodash";
-import * as client from "../client";
+import * as dt from 'date-fns'
+import * as R from 'remeda'
+import * as client from '../client'
 
 import {
   Chart,
-  LineController,
   Filler,
   Legend,
+  LineController,
+  LineElement,
+  LinearScale,
+  PointElement,
+  TimeSeriesScale,
   Title,
   Tooltip,
-  TimeSeriesScale,
-  LinearScale,
-  LineElement,
-  PointElement,
-} from "chart.js";
-import "chartjs-adapter-date-fns"; // needed to parse dates
+} from 'chart.js'
+import 'chartjs-adapter-date-fns' // needed to parse dates
 
 import type {
   ChartConfiguration,
-  LineOptions,
   ChartDatasetProperties,
-} from "chart.js";
+  LineOptions,
+} from 'chart.js'
 
-import tailwindColors from "tailwindcss/colors";
-import { TailwindColorGroup } from "tailwindcss/tailwind-config";
+import tailwindColors from 'tailwindcss/colors'
 
 // Register Line Plot
 Chart.register(
@@ -44,126 +43,130 @@ Chart.register(
   TimeSeriesScale,
   LinearScale,
   PointElement,
-  LineElement
-);
+  LineElement,
+)
 
 interface TimePoint {
-  x: Date;
-  y: number;
+  x: Date
+  y: number
 }
 
 const colors: Array<keyof typeof tailwindColors> = [
-  "red",
-  "orange",
-  "yellow",
-  "cyan",
-  "blue",
-  "green",
-];
+  'red',
+  'orange',
+  'yellow',
+  'cyan',
+  'blue',
+  'green',
+]
 
-let colorCount = 0;
+let colorCount = 0
 
 function cycleColor() {
-  let color = colors[colorCount];
-  colorCount++;
-  if (colorCount === colors.length) {
-    colorCount = 0;
-  }
-  return color;
+  const color = colors[colorCount]
+  colorCount++
+  if (colorCount === colors.length)
+    colorCount = 0
+
+  return color
 }
 
 function pickColor() {
-  const color = cycleColor();
-  const palette = tailwindColors[color] as TailwindColorGroup;
+  const color = cycleColor()
+  const palette = tailwindColors[color]
   return {
-    color: palette["200"],
-    borderColor: palette["200"],
-    backgroundColor: palette["50"],
-  };
+    color: palette['200'],
+    borderColor: palette['200'],
+    backgroundColor: palette['50'],
+  }
 }
 
 const ChartComponent: Component<{
-  repos: () => string[];
+  repos: () => string[]
 }> = (props) => {
   const [series] = createResource(
     props.repos,
     async () => {
-      const promises = props.repos().map((repo) => client.fetchStars(repo));
-      return await Promise.all(promises);
+      const promises = props.repos().map(repo => client.fetchStars(repo))
+      return await Promise.all(promises)
     },
-    { initialValue: [] }
-  );
+    { initialValue: [] },
+  )
 
-  const starsChartId = "starsChart";
-  let chart: Chart<any, any, any> | undefined = undefined;
+  const starsChartId = 'starsChart'
+  let chart: Chart<any, any, any> | undefined
 
   const starsChartCfg = createMemo(() => {
-    if (!series().length) return;
+    if (!series().length)
+      return
 
     const optsDataset: Partial<LineOptions> = {
       fill: true,
       tension: 0.1,
-    };
+    }
 
-    const datasets: ChartDatasetProperties<"line", TimePoint[]>[] =
-      series().map((serie, i) => {
-        const label = props.repos()[i];
+    const datasets: ChartDatasetProperties<'line', TimePoint[]>[]
+      = series().map((serie, i) => {
+        const label = props.repos()[i]
         const data = serie.stars.map((point, i) => ({
           x: point.starredAt,
           y: i + 1,
-        }));
-        return { data, label, ...pickColor(), ...optsDataset };
-      });
+        }))
+        return { data, label, ...pickColor(), ...optsDataset }
+      })
 
-    const minDt = dt.startOfMonth(dt.min(datasets.map((e) => e.data[0].x)));
+    const minDt = dt.startOfMonth(dt.min(datasets.map(e => e.data[0].x)))
     const maxDt = dt.startOfMonth(
-      dt.addMonths(dt.max(datasets.map((e) => e.data[e.data.length - 1].x)), 1)
-    );
-    const labels = dt.eachMonthOfInterval({ start: minDt, end: maxDt });
+      dt.addMonths(dt.max(datasets.map(e => e.data[e.data.length - 1].x)), 1),
+    )
+    const labels = dt.eachMonthOfInterval({ start: minDt, end: maxDt })
 
-    const cfg: ChartConfiguration<"line", TimePoint[], Date> = {
-      type: "line",
+    const cfg: ChartConfiguration<'line', TimePoint[], Date> = {
+      type: 'line',
       data: { labels, datasets },
       options: {
         scales: {
           x: {
-            type: "time",
+            type: 'time',
             grid: { drawOnChartArea: false },
-            ticks: { source: "labels" },
-            time: { unit: "month" },
+            ticks: { source: 'labels' },
+            time: { unit: 'month' },
           },
         },
       },
-    };
-    return cfg;
-  });
+    }
+    return cfg
+  })
 
   createEffect(() => {
-    const cfg = starsChartCfg();
-    if (!cfg) return;
+    const cfg = starsChartCfg()
+    if (!cfg)
+      return
 
     const ctx = document.getElementById(
-      starsChartId
-    ) as HTMLCanvasElement | null;
-    if (!ctx) return;
+      starsChartId,
+    ) as HTMLCanvasElement | null
+    if (!ctx)
+      return
 
-    if (chart !== undefined) chart.destroy();
-    chart = new Chart(ctx, cfg);
-    return chart;
-  });
+    if (chart !== undefined)
+      chart.destroy()
+    chart = new Chart(ctx, cfg)
+    return chart
+  })
 
   return (
     <div>
       <Show when={series.loading}>
         <div class="h-96 flex">
-          <IconUiwLoading class="mx-auto self-center animate-spin-slow duration-75 text-slate-400 h-10 w-10" />
+          <IconUiwLoading class="animate-spin-slow mx-auto self-center duration-75 text-slate-400 h-10 w-10" />
         </div>
       </Show>
 
       <Show when={!series.loading}>
         <ul class="grid grid-cols-2 w-44 mx-auto py-8">
-          <For each={ld.sortBy(series(), (s) => -s.total)}>
-            {(item) => (
+          <For each={R.sortBy(series(), s => -s.total)}>
+            {item => (
               <div class="contents">
                 <span class="font-medium">{item.repo}</span>
                 <span class="text-right">{item.total}</span>
@@ -176,7 +179,7 @@ const ChartComponent: Component<{
         </div>
       </Show>
     </div>
-  );
-};
+  )
+}
 
-export default ChartComponent;
+export default ChartComponent

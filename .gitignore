@@ -1,6 +1,31 @@
-node_modules
 dist
+.solid
+.output
+.vercel
+.netlify
+netlify
+
+# dependencies
+/node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
+
+# Temp
+gitignore
+
+# System Files
+.DS_Store
+Thumbs.db
 
 .env
 
+# (icons auto import are randomizing the result of this file, hence we will not commit it.)
+src/components.d.ts
+
+# (it depends on how "recent" is the local run of `npm install`)
 src/auto-imports.d.ts
